@@ -1,0 +1,90 @@
+<?php
+
+/**
+* Implements hook_block_info().
+*/
+function booking_block_info() {
+	$blocks = array();
+	$blocks['booking_block'] = array(
+			'info' => t('Booking form'),
+			'cache' => DRUPAL_NO_CACHE,
+		);
+	return $blocks;
+}
+
+function booking_form($form, &$form_state){
+	$node = menu_get_object();
+	$form=array();
+	$form['name'] = array(
+		'#type'	=> 'textfield',
+		'#title' => t('Your name'),
+		'#required' => TRUE,
+	);
+	$form['email'] = array(
+		'#type'	=> 'textfield',
+		'#title' => t('Your email'),
+		'#required' => TRUE,
+	);
+	$form['number_places'] = array(
+		'#type'	=> 'textfield',
+		'#title' => t('Number of places'),
+		'#required' => TRUE,
+		'#element_validate' => array('element_validate_integer_positive')
+	);
+	$form['event_title'] = array(
+		'#type'	=> 'hidden',
+		'#value' => $node->title,
+	);
+	$form['submit'] = array(
+		'#type' => 'submit',
+		'#value' => t('Submit'),
+	);
+	return $form;
+}
+ 
+/**
+* Implements hook_block_view().
+*/
+function booking_block_view($delta = '') {
+	if ($delta == 'booking_block') {
+		$form = drupal_get_form('booking_form');
+		$form = drupal_render($form);
+
+		return $block = array(
+				'subject' => t('Booking form'),
+				'content' => $form,
+			);
+	}
+}
+
+function booking_form_validate($form, &$form_state){
+	if(mb_strlen($form_state['values']['name']) < 1){
+		form_set_error('name', t('Short name.'));
+	}
+	if(mb_strlen($form_state['values']['email']) < 3){
+		form_set_error('email', t('Short email.'));
+	}
+	if(!valid_email_address($form_state['values']['email'])) {
+		form_set_error('email', t('Invalid Email Address'));
+	}
+	if(mb_strlen($form_state['values']['number_places']) < 1){
+		form_set_error('number_places', t('Empty number of places.'));
+	}
+}
+
+function booking_form_submit($form, &$form_state){
+	$query = db_insert('booking_events')
+		->fields(array(
+			'name' => $form_state['values']['name'],
+			'email' => $form_state['values']['email'],
+			'number_places'   => $form_state['values']['number_places'],
+			'event_title' => $form_state['values']['event_title']
+		))
+		->execute();
+	if ($query > 0) {
+		drupal_set_message(t('Data has been successfully sent.'));
+	}
+	else {
+		drupal_set_message(t("Data hasn't been sent."), 'error');
+	}
+}

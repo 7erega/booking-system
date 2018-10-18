@@ -1,0 +1,45 @@
+<?php
+/**
+ * Implements hook_schema().
+ */
+function booking_schema() {
+  $schema['booking_events'] = array(
+    'description' => 'Custom table from Booking form module.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a record.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Text field.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+      'email' => array(
+        'description' => 'Text field.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+      'number_places' => array(
+        'description' => 'Field for integer number.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'event_title' => array(
+        'description' => 'Text field.',
+        'type' => 'text',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+function booking_uninstall() {
+  drupal_uninstall_schema('booking');
+}

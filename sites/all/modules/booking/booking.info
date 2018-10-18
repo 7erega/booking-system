@@ -1,0 +1,4 @@
+name = "Booking form"
+description = Add block with form for booking.
+core = 7.x
+package = Custom

@@ -1,0 +1,46 @@
+<?php
+
+/**
+* Implements hook_block_info().
+*/
+function last_items_block_info() {
+	$blocks = array();
+	$blocks['last_items_block'] = array(
+			'info' => t('Last items'),
+			'cache' => DRUPAL_NO_CACHE,
+		);
+	return $blocks;
+}
+ 
+/**
+* Implements hook_block_view().
+*/
+function last_items_block_view($delta = '') {
+	if ($delta == 'last_items_block') {
+		$q = db_select('node', 'n');
+		$q->condition('n.type', 'event');
+		$q->condition('n.status', 1);
+		$q->fields('n', array('nid', 'title'));
+		$q->range(0, 5);
+		$q->orderBy('created', 'DESC');
+		$res = $q->execute();
+
+		foreach ($res as $rowres) {
+			$load_node = node_view(node_load($rowres->nid), 'teaser');
+			$items[] = drupal_render($load_node);
+		}
+
+		if (empty($items)) {
+			$content = t('No posts available.');
+		}
+		else {
+			$content = theme('item_list', array(
+				'items' => $items));
+		}
+
+		return $block = array(
+				'subject' => t('Last items'),
+				'content' => $content,
+			);
+	}
+}

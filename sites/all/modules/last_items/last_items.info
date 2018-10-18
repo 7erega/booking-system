@@ -1,0 +1,4 @@
+name = "Last items block"
+description = Add block with last items.
+core = 7.x
+package = Custom

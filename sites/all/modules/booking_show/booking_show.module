@@ -1,0 +1,39 @@
+<?php
+
+/**
+* Implements hook_block_info().
+*/
+function booking_show_block_info() {
+	$blocks = array();
+	$blocks['booking_show_block'] = array(
+			'info' => t('Booking show'),
+			'cache' => DRUPAL_NO_CACHE,
+		);
+	return $blocks;
+}
+
+/**
+* Implements hook_block_view().
+*/
+function booking_show_block_view($delta = '') {
+	if ($delta == 'booking_show_block') {
+
+		$nodes = db_select('booking_events', 'be')
+		->fields('be', array('name', 'email', 'number_places', 'event_title'))
+		->execute();
+
+		$header = array('Name', 'Email', 'Number of places', 'Event title');
+		$rows = array();
+
+		foreach ($nodes as $node) {
+			$rows[] = array($node->name, $node->email, $node->number_places, $node->event_title);
+		}
+
+		$content = theme('table', array('header' => $header, 'rows' => $rows));
+
+		return $block = array(
+				'subject' => t('Show booking'),
+				'content' => $content,
+			);
+	}
+}
